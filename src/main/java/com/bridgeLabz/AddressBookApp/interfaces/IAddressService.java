@@ -8,6 +8,5 @@ public interface IAddressService {
     List<Address> getAllAddresses();
     Address getAddressById(Long id);
     Address createAddress(AddressDTO addressDTO);
-    Address updateAddress(Long id, AddressDTO addressDTO);
-    void deleteAddress(Long id);
+
 }
