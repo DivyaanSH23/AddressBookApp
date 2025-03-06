@@ -1,14 +1,13 @@
 package com.bridgeLabz.AddressBookApp.service;
 
 import com.bridgeLabz.AddressBookApp.dto.AddressDTO;
-import com.bridgeLabz.AddressBookApp.interfaces.IAddressService; // Updated Interface Import ✅
+import com.bridgeLabz.AddressBookApp.interfaces.IAddressService;
 import com.bridgeLabz.AddressBookApp.model.Address;
 import com.bridgeLabz.AddressBookApp.repository.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AddressServiceImpl implements IAddressService {
