@@ -1,5 +1,7 @@
 package com.bridgeLabz.AddressBookApp.controller;
 
+import com.bridgeLabz.AddressBookApp.dto.AddressDTO;
+import com.bridgeLabz.AddressBookApp.dto.ResponseDTO;
 import com.bridgeLabz.AddressBookApp.model.Address;
 import com.bridgeLabz.AddressBookApp.repository.AddressRepository;
 import org.springframework.http.ResponseEntity;
@@ -20,44 +22,70 @@ public class AddressController {
 
     // GET all addresses
     @GetMapping
-    public List<Address> getAllAddresses() {
-        return addressRepository.findAll();
+    public ResponseEntity<ResponseDTO> getAllAddresses() {
+        List<Address> addresses = addressRepository.findAll();
+        return ResponseEntity.ok(new ResponseDTO("Fetched all addresses", addresses));
     }
 
     // GET address by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Address> getAddressById(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> getAddressById(@PathVariable Long id) {
         Optional<Address> address = addressRepository.findById(id);
-        return address.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return address.map(value -> ResponseEntity.ok(new ResponseDTO("Address found", value)))
+                .orElseGet(() -> ResponseEntity.ok(new ResponseDTO("Address not found", null)));
     }
 
-    // POST - Create new address
+    // POST - Create new address (without DTO)
     @PostMapping
-    public Address createAddress(@RequestBody Address address) {
-        return addressRepository.save(address);
+    public ResponseEntity<ResponseDTO> createAddress(@RequestBody Address address) {
+        Address savedAddress = addressRepository.save(address);
+        return ResponseEntity.ok(new ResponseDTO("Address created successfully", savedAddress));
     }
 
-    // PUT - Update existing address
+
     @PutMapping("/{id}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long id, @RequestBody Address updatedAddress) {
+    public ResponseEntity<ResponseDTO> updateAddress(@PathVariable Long id, @RequestBody Address updatedAddress) {
         return addressRepository.findById(id)
                 .map(existingAddress -> {
                     existingAddress.setName(updatedAddress.getName());
                     existingAddress.setCity(updatedAddress.getCity());
                     existingAddress.setPhoneNumber(updatedAddress.getPhoneNumber());
-                    return ResponseEntity.ok(addressRepository.save(existingAddress));
+                    Address savedAddress = addressRepository.save(existingAddress);
+                    return ResponseEntity.ok(new ResponseDTO("Address updated successfully", savedAddress));
                 })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.ok(new ResponseDTO("Address not found", null)));
     }
 
     // DELETE - Remove address
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> deleteAddress(@PathVariable Long id) {
         if (addressRepository.existsById(id)) {
             addressRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(new ResponseDTO("Address deleted successfully", null));
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(new ResponseDTO("Address not found", null));
         }
+    }
+
+    // POST - Create new address using DTO
+    @PostMapping("/dto")
+    public ResponseEntity<ResponseDTO> createAddressUsingDTO(@RequestBody AddressDTO addressDTO) {
+        Address newAddress = new Address(addressDTO);
+        Address savedAddress = addressRepository.save(newAddress);
+        return ResponseEntity.ok(new ResponseDTO("Address created successfully using DTO", savedAddress));
+    }
+
+    // PUT - Update existing address using DTO
+    @PutMapping("/dto/{id}")
+    public ResponseEntity<ResponseDTO> updateAddressUsingDTO(@PathVariable Long id, @RequestBody AddressDTO addressDTO) {
+        return addressRepository.findById(id)
+                .map(existingAddress -> {
+                    existingAddress.setName(addressDTO.getName());
+                    existingAddress.setCity(addressDTO.getCity());
+                    existingAddress.setPhoneNumber(addressDTO.getPhoneNumber());
+                    Address savedAddress = addressRepository.save(existingAddress);
+                    return ResponseEntity.ok(new ResponseDTO("Address updated successfully using DTO", savedAddress));
+                })
+                .orElseGet(() -> ResponseEntity.ok(new ResponseDTO("Address not found", null)));
     }
 }
