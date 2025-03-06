@@ -32,6 +32,24 @@ public class AddressService implements IAddressService {
         return addressRepository.save(newAddress);
     }
 
-
+    @Override
+    public Address updateAddress(Long id, AddressDTO addressDTO) {
+        Optional<Address> addressOptional = addressRepository.findById(id);
+        if (addressOptional.isPresent()) {
+            Address address = addressOptional.get();
+            address.setName(addressDTO.getName());
+            address.setCity(addressDTO.getCity());
+            address.setPhoneNumber(addressDTO.getPhoneNumber());
+            return addressRepository.save(address);
+        }
+        return null;
     }
+
+    @Override
+    public void deleteAddress(Long id) {
+        addressRepository.deleteById(id);
+    }
+
+
+}
 
