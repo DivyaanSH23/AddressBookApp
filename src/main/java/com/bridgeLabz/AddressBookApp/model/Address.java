@@ -17,6 +17,7 @@ public class Address {
     private String city;
     private String phoneNumber;
 
+    // Constructor to convert DTO to Model
     public Address(AddressDTO dto) {
         this.name = dto.getName();
         this.city = dto.getCity();
