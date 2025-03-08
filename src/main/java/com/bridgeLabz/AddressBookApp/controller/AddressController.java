@@ -8,24 +8,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/addresses")
-@Slf4j // Lombok Logging ✅
+@Slf4j
 public class AddressController {
 
     @Autowired
     private IAddressService addressService;
 
-    // GET all addresses
+
     @GetMapping
     public List<Address> getAllAddresses() {
         log.info("Fetching all addresses...");
         return addressService.getAllAddresses();
     }
 
-    // GET address by ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Address> getAddressById(@PathVariable Long id) {
         log.info("Fetching address with ID: {}", id);
@@ -37,16 +38,15 @@ public class AddressController {
         return ResponseEntity.notFound().build();
     }
 
-    // POST - Create new address
+
     @PostMapping
-    public Address createAddress(@RequestBody AddressDTO addressDTO) {
+    public Address createAddress(@Valid @RequestBody AddressDTO addressDTO) {
         log.info("Creating new address: {}", addressDTO);
         return addressService.createAddress(addressDTO);
     }
 
-    // PUT - Update existing address
     @PutMapping("/{id}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long id, @RequestBody AddressDTO addressDTO) {
+    public ResponseEntity<Address> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
         log.info("Updating address with ID {}: {}", id, addressDTO);
         Address updatedAddress = addressService.updateAddress(id, addressDTO);
         if (updatedAddress != null) {
@@ -56,7 +56,7 @@ public class AddressController {
         return ResponseEntity.notFound().build();
     }
 
-    // DELETE - Remove address
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
         log.info("Deleting address with ID: {}", id);
