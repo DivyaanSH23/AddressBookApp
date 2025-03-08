@@ -20,42 +20,43 @@ public class AddressService implements IAddressService {
 
     @Override
     public List<Address> getAllAddresses() {
-        log.info("Retrieving all addresses from database...");
+        log.info("Fetching all addresses from database...");
         return addressRepository.findAll();
     }
 
     @Override
     public Address getAddressById(Long id) {
-        log.info("Retrieving address with ID: {}", id);
-        Optional<Address> address = addressRepository.findById(id);
-        return address.orElse(null);
+        log.info("Fetching address with ID: {}", id);
+        return addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Address with ID " + id + " not found"));
     }
 
     @Override
     public Address createAddress(AddressDTO addressDTO) {
-        log.info("Saving new address: {}", addressDTO);
+        log.info("Creating new address: {}", addressDTO);
         Address newAddress = new Address(addressDTO);
         return addressRepository.save(newAddress);
     }
 
     @Override
     public Address updateAddress(Long id, AddressDTO addressDTO) {
-        log.info("Updating address with ID {}: {}", id, addressDTO);
-        Optional<Address> addressOptional = addressRepository.findById(id);
-        if (addressOptional.isPresent()) {
-            Address address = addressOptional.get();
-            address.setName(addressDTO.getName());
-            address.setCity(addressDTO.getCity());
-            address.setPhoneNumber(addressDTO.getPhoneNumber());
-            return addressRepository.save(address);
-        }
-        log.warn("Update failed. Address with ID {} not found", id);
-        return null;
+        log.info("Updating address with ID: {}", id);
+        Address existingAddress = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Address with ID " + id + " not found"));
+
+        existingAddress.setName(addressDTO.getName());
+        existingAddress.setCity(addressDTO.getCity());
+        existingAddress.setPhoneNumber(addressDTO.getPhoneNumber());
+
+        return addressRepository.save(existingAddress);
     }
 
     @Override
     public void deleteAddress(Long id) {
         log.info("Deleting address with ID: {}", id);
+        if (!addressRepository.existsById(id)) {
+            throw new RuntimeException("Address with ID " + id + " not found");
+        }
         addressRepository.deleteById(id);
     }
 }
