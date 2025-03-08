@@ -1,6 +1,7 @@
 package com.bridgeLabz.AddressBookApp.controller;
 
 import com.bridgeLabz.AddressBookApp.dto.AddressDTO;
+import com.bridgeLabz.AddressBookApp.dto.ResponseDTO;
 import com.bridgeLabz.AddressBookApp.interfaces.IAddressService;
 import com.bridgeLabz.AddressBookApp.model.Address;
 import lombok.extern.slf4j.Slf4j;
@@ -19,51 +20,49 @@ public class AddressController {
     @Autowired
     private IAddressService addressService;
 
-
     @GetMapping
-    public List<Address> getAllAddresses() {
+    public ResponseEntity<ResponseDTO> getAllAddresses() {
         log.info("Fetching all addresses...");
-        return addressService.getAllAddresses();
+        List<Address> addressList = addressService.getAllAddresses();
+        return ResponseEntity.ok(new ResponseDTO("Fetched all addresses", addressList));
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<Address> getAddressById(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> getAddressById(@PathVariable Long id) {
         log.info("Fetching address with ID: {}", id);
         Address address = addressService.getAddressById(id);
         if (address != null) {
-            return ResponseEntity.ok(address);
+            return ResponseEntity.ok(new ResponseDTO("Fetched address successfully", address));
         }
         log.warn("Address with ID {} not found", id);
         return ResponseEntity.notFound().build();
     }
 
-
     @PostMapping
-    public Address createAddress(@Valid @RequestBody AddressDTO addressDTO) {
+    public ResponseEntity<ResponseDTO> createAddress(@Valid @RequestBody AddressDTO addressDTO) {
         log.info("Creating new address: {}", addressDTO);
-        return addressService.createAddress(addressDTO);
+        Address newAddress = addressService.createAddress(addressDTO);
+        return ResponseEntity.ok(new ResponseDTO("Address created successfully", newAddress));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
+    public ResponseEntity<ResponseDTO> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
         log.info("Updating address with ID {}: {}", id, addressDTO);
         Address updatedAddress = addressService.updateAddress(id, addressDTO);
         if (updatedAddress != null) {
-            return ResponseEntity.ok(updatedAddress);
+            return ResponseEntity.ok(new ResponseDTO("Address updated successfully", updatedAddress));
         }
         log.warn("Failed to update. Address with ID {} not found", id);
         return ResponseEntity.notFound().build();
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> deleteAddress(@PathVariable Long id) {
         log.info("Deleting address with ID: {}", id);
         if (addressService.getAddressById(id) != null) {
             addressService.deleteAddress(id);
             log.info("Deleted address with ID: {}", id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(new ResponseDTO("Address deleted successfully", null));
         }
         log.warn("Failed to delete. Address with ID {} not found", id);
         return ResponseEntity.notFound().build();
