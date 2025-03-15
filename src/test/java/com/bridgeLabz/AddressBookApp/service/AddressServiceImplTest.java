@@ -43,18 +43,19 @@ public class AddressServiceImplTest {
         addressDTO.setPhoneNumber("9876543210");
     }
 
+    // Test getAllAddresses()
     @Test
     void testGetAllAddresses_Success() {
         when(addressRepository.findAll()).thenReturn(Arrays.asList(address));
         List<Address> addresses = addressService.getAllAddresses();
-        assertFalse(addresses.isEmpty());
+        assertTrue(!addresses.isEmpty());
     }
 
     @Test
     void testGetAllAddresses_Failure() {
         when(addressRepository.findAll()).thenReturn(Arrays.asList());
         List<Address> addresses = addressService.getAllAddresses();
-        assertTrue(addresses.isEmpty());
+        assertFalse(!addresses.isEmpty());
     }
 
     @Test
@@ -63,24 +64,40 @@ public class AddressServiceImplTest {
         assertThrows(RuntimeException.class, () -> addressService.getAllAddresses());
     }
 
+    // Test getAddressById()
     @Test
     void testGetAddressById_Success() {
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         Address retrievedAddress = addressService.getAddressById(1L);
-        assertNotNull(retrievedAddress);
+        assertTrue(retrievedAddress != null);
     }
 
     @Test
     void testGetAddressById_Failure() {
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
+        Address retrievedAddress = addressService.getAddressById(1L);
+        assertFalse(retrievedAddress != null);
+    }
+
+    @Test
+    void testGetAddressById_ThrowsException() {
+        when(addressRepository.findById(1L)).thenThrow(new RuntimeException("Database error"));
         assertThrows(RuntimeException.class, () -> addressService.getAddressById(1L));
     }
 
+    // Test createAddress()
     @Test
     void testCreateAddress_Success() {
         when(addressRepository.save(any(Address.class))).thenReturn(address);
         Address createdAddress = addressService.createAddress(addressDTO);
-        assertNotNull(createdAddress);
+        assertTrue(createdAddress != null);
+    }
+
+    @Test
+    void testCreateAddress_Failure() {
+        when(addressRepository.save(any(Address.class))).thenReturn(null);
+        Address createdAddress = addressService.createAddress(addressDTO);
+        assertFalse(createdAddress != null);
     }
 
     @Test
@@ -89,21 +106,31 @@ public class AddressServiceImplTest {
         assertThrows(RuntimeException.class, () -> addressService.createAddress(addressDTO));
     }
 
+    // Test updateAddress()
     @Test
     void testUpdateAddress_Success() {
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         when(addressRepository.save(any(Address.class))).thenReturn(address);
 
         Address updatedAddress = addressService.updateAddress(1L, addressDTO);
-        assertNotNull(updatedAddress);
+        assertTrue(updatedAddress != null);
     }
 
     @Test
     void testUpdateAddress_Failure() {
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Address updatedAddress = addressService.updateAddress(1L, addressDTO);
+        assertFalse(updatedAddress != null);
+    }
+
+    @Test
+    void testUpdateAddress_ThrowsException() {
+        when(addressRepository.findById(1L)).thenThrow(new RuntimeException("Database error"));
         assertThrows(RuntimeException.class, () -> addressService.updateAddress(1L, addressDTO));
     }
 
+    // Test deleteAddress()
     @Test
     void testDeleteAddress_Success() {
         when(addressRepository.existsById(1L)).thenReturn(true);
@@ -115,6 +142,12 @@ public class AddressServiceImplTest {
     @Test
     void testDeleteAddress_Failure() {
         when(addressRepository.existsById(1L)).thenReturn(false);
+        assertThrows(RuntimeException.class, () -> addressService.deleteAddress(1L));
+    }
+
+    @Test
+    void testDeleteAddress_ThrowsException() {
+        when(addressRepository.existsById(1L)).thenThrow(new RuntimeException("Database error"));
         assertThrows(RuntimeException.class, () -> addressService.deleteAddress(1L));
     }
 }
