@@ -45,12 +45,19 @@ public class AddressService implements IAddressService {
         try {
             log.info("Creating new address: {}", addressDTO);
             Address newAddress = new Address(addressDTO);
-            return addressRepository.save(newAddress);
+            Address savedAddress = addressRepository.save(newAddress);
+
+            if (savedAddress == null) {
+                throw new RuntimeException("Failed to create address");
+            }
+
+            return savedAddress;
         } catch (Exception e) {
             log.error("Error creating address: {}", e.getMessage());
             throw new RuntimeException("Error creating address");
         }
     }
+
 
     @Override
     public Address updateAddress(Long id, AddressDTO addressDTO) {
