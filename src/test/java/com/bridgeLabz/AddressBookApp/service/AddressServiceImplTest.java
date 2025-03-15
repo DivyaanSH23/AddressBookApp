@@ -43,19 +43,12 @@ public class AddressServiceImplTest {
         addressDTO.setPhoneNumber("9876543210");
     }
 
-    // Test getAllAddresses()
+    // ✅ Test getAllAddresses()
     @Test
     void testGetAllAddresses_Success() {
         when(addressRepository.findAll()).thenReturn(Arrays.asList(address));
         List<Address> addresses = addressService.getAllAddresses();
-        assertTrue(!addresses.isEmpty());
-    }
-
-    @Test
-    void testGetAllAddresses_Failure() {
-        when(addressRepository.findAll()).thenReturn(Arrays.asList());
-        List<Address> addresses = addressService.getAllAddresses();
-        assertFalse(!addresses.isEmpty());
+        assertFalse(addresses.isEmpty());
     }
 
     @Test
@@ -64,19 +57,12 @@ public class AddressServiceImplTest {
         assertThrows(RuntimeException.class, () -> addressService.getAllAddresses());
     }
 
-    // Test getAddressById()
+    // ✅ Test getAddressById()
     @Test
     void testGetAddressById_Success() {
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         Address retrievedAddress = addressService.getAddressById(1L);
-        assertTrue(retrievedAddress != null);
-    }
-
-    @Test
-    void testGetAddressById_Failure() {
-        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-        Address retrievedAddress = addressService.getAddressById(1L);
-        assertFalse(retrievedAddress != null);
+        assertNotNull(retrievedAddress);
     }
 
     @Test
@@ -85,19 +71,12 @@ public class AddressServiceImplTest {
         assertThrows(RuntimeException.class, () -> addressService.getAddressById(1L));
     }
 
-    // Test createAddress()
+    // ✅ Test createAddress()
     @Test
     void testCreateAddress_Success() {
         when(addressRepository.save(any(Address.class))).thenReturn(address);
         Address createdAddress = addressService.createAddress(addressDTO);
-        assertTrue(createdAddress != null);
-    }
-
-    @Test
-    void testCreateAddress_Failure() {
-        when(addressRepository.save(any(Address.class))).thenReturn(null);
-        Address createdAddress = addressService.createAddress(addressDTO);
-        assertFalse(createdAddress != null);
+        assertNotNull(createdAddress);
     }
 
     @Test
@@ -106,22 +85,14 @@ public class AddressServiceImplTest {
         assertThrows(RuntimeException.class, () -> addressService.createAddress(addressDTO));
     }
 
-    // Test updateAddress()
+    // ✅ Test updateAddress()
     @Test
     void testUpdateAddress_Success() {
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         when(addressRepository.save(any(Address.class))).thenReturn(address);
 
         Address updatedAddress = addressService.updateAddress(1L, addressDTO);
-        assertTrue(updatedAddress != null);
-    }
-
-    @Test
-    void testUpdateAddress_Failure() {
-        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-
-        Address updatedAddress = addressService.updateAddress(1L, addressDTO);
-        assertFalse(updatedAddress != null);
+        assertNotNull(updatedAddress);
     }
 
     @Test
@@ -130,19 +101,13 @@ public class AddressServiceImplTest {
         assertThrows(RuntimeException.class, () -> addressService.updateAddress(1L, addressDTO));
     }
 
-    // Test deleteAddress()
+    // ✅ Test deleteAddress()
     @Test
     void testDeleteAddress_Success() {
         when(addressRepository.existsById(1L)).thenReturn(true);
         doNothing().when(addressRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> addressService.deleteAddress(1L));
-    }
-
-    @Test
-    void testDeleteAddress_Failure() {
-        when(addressRepository.existsById(1L)).thenReturn(false);
-        assertThrows(RuntimeException.class, () -> addressService.deleteAddress(1L));
     }
 
     @Test

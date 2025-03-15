@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -25,7 +24,7 @@ public class AddressService implements IAddressService {
             return addressRepository.findAll();
         } catch (Exception e) {
             log.error("Error fetching addresses: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Error fetching addresses from database");
         }
     }
 
@@ -37,7 +36,7 @@ public class AddressService implements IAddressService {
                     .orElseThrow(() -> new RuntimeException("Address with ID " + id + " not found"));
         } catch (Exception e) {
             log.error("Error fetching address: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Error fetching address with ID " + id);
         }
     }
 
@@ -49,7 +48,7 @@ public class AddressService implements IAddressService {
             return addressRepository.save(newAddress);
         } catch (Exception e) {
             log.error("Error creating address: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Error creating address");
         }
     }
 
@@ -67,7 +66,7 @@ public class AddressService implements IAddressService {
             return addressRepository.save(existingAddress);
         } catch (Exception e) {
             log.error("Error updating address: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Error updating address with ID " + id);
         }
     }
 
@@ -82,6 +81,7 @@ public class AddressService implements IAddressService {
             addressRepository.deleteById(id);
         } catch (Exception e) {
             log.error("Error deleting address: {}", e.getMessage());
+            throw new RuntimeException("Error deleting address with ID " + id);
         }
     }
 }
