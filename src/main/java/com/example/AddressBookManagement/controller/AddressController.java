@@ -1,9 +1,11 @@
 package com.example.AddressBookManagement.controller;
 
 import com.example.AddressBookManagement.DTO.AddressDTO;
+import com.example.AddressBookManagement.DTO.RabbitMQMessageDTO;
 import com.example.AddressBookManagement.Utils.JwtUtil;
 import com.example.AddressBookManagement.model.Address;
 import com.example.AddressBookManagement.interfaces.AddressService;
+import com.example.AddressBookManagement.services.RabbitMQProducer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,6 +28,9 @@ public class AddressController {
 
     @Autowired
     private JwtUtil jwtUtil; // ✅ Inject JWT Utility for token validation
+
+    @Autowired
+    private RabbitMQProducer rabbitMQProducer; // ✅ Inject RabbitMQ Producer
 
     // ✅ Check if user is authenticated before accessing any CRUD operation
     private boolean isAuthenticated(String authHeader) {
@@ -116,6 +121,24 @@ public class AddressController {
         } catch (Exception e) {
             log.error("Error deleting address with ID: {}", id, e);
             return ResponseEntity.internalServerError().body("An error occurred while deleting the address");
+        }
+    }
+
+    // ✅ New endpoint to send Address Data to RabbitMQ
+    @PostMapping("/send")
+    @Operation(summary = "Send address to RabbitMQ", description = "Sends an address as a message to RabbitMQ queue")
+    public ResponseEntity<?> sendMessageToQueue(@RequestHeader("Authorization") String authHeader, @RequestBody RabbitMQMessageDTO messageDTO) {
+        if (!isAuthenticated(authHeader)) {
+            return ResponseEntity.status(403).body("Unauthorized: You need to log in first!");
+        }
+
+        try {
+            log.info("Sending address data to RabbitMQ: {}", messageDTO);
+            rabbitMQProducer.sendMessage(messageDTO);
+            return ResponseEntity.ok("Message sent to RabbitMQ: " + messageDTO.getName());
+        } catch (Exception e) {
+            log.error("Error sending message to RabbitMQ", e);
+            return ResponseEntity.internalServerError().body("An error occurred while sending the message");
         }
     }
 }
