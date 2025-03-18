@@ -2,7 +2,7 @@ package com.example.AddressBookManagement.DTO;
 
 import java.io.Serializable;
 
-public class RabbitMQMessageDTO implements Serializable {
+public class    RabbitMQMessageDTO implements Serializable {
     private String name;
     private String city;
     private String phoneNumber;

@@ -6,6 +6,9 @@ import com.example.AddressBookManagement.repository.AddressRepository;
 import com.example.AddressBookManagement.interfaces.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,14 +22,16 @@ public class AddressServiceImpl implements AddressService {
     private AddressRepository addressRepository;
 
     @Override
+    @Cacheable(value = "addresses")  // ✅ Cache all addresses
     public List<Address> getAllAddresses() {
-        log.info("Fetching all addresses");
+        log.info("Fetching all addresses from DB");
         return addressRepository.findAll();
     }
 
     @Override
+    @Cacheable(value = "address", key = "#id")  // ✅ Cache individual address by ID
     public Optional<Address> getAddressById(Long id) {
-        log.info("Fetching address with ID: {}", id);
+        log.info("Fetching address with ID: {} from DB", id);
         return addressRepository.findById(id)
                 .or(() -> {
                     log.warn("Address with ID {} not found", id);
@@ -35,6 +40,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @CachePut(value = "address", key = "#result.id")  // ✅ Update cache when creating a new address
     public Address createAddress(AddressDTO addressDTO) {
         log.info("Creating new address: {}", addressDTO);
         Address address = new Address(null, addressDTO.getName(), addressDTO.getPhone(), addressDTO.getEmail(), addressDTO.getCity());
@@ -42,6 +48,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @CachePut(value = "address", key = "#id")  // ✅ Update cache when modifying an address
     public Address updateAddress(Long id, AddressDTO addressDTO) {
         log.info("Updating address with ID: {}", id);
         return addressRepository.findById(id)
@@ -59,6 +66,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @CacheEvict(value = "address", key = "#id")  // ✅ Remove cache when deleting an address
     public void deleteAddress(Long id) {
         log.info("Deleting address with ID: {}", id);
         if (!addressRepository.existsById(id)) {
@@ -68,3 +76,6 @@ public class AddressServiceImpl implements AddressService {
         addressRepository.deleteById(id);
     }
 }
+
+
+

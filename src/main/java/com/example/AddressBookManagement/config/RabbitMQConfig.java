@@ -3,7 +3,8 @@ package com.example.AddressBookManagement.config;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +32,23 @@ public class RabbitMQConfig {
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        return new RabbitTemplate(connectionFactory);
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());  // ✅ Set JSON converter
+        return rabbitTemplate;
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter jsonMessageConverter() {
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
+
+        // ✅ Allow both DTO and model packages
+        typeMapper.setTrustedPackages(
+                "com.example.AddressBookManagement.DTO",
+                "com.example.AddressBookManagement.model"
+        );
+
+        converter.setJavaTypeMapper(typeMapper);
+        return converter;
     }
 }
