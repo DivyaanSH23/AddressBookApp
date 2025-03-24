@@ -11,3 +11,7 @@ public class AddressBookManagementApplication {
 		SpringApplication.run(AddressBookManagementApplication.class, args);
 	}
 }
+//Start Servers - docker start rabbitmq
+//			 - docker start redis
+//			 - docker ps
+//			- Now run the secure file
