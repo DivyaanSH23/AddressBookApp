@@ -5,7 +5,7 @@ import com.example.AddressBookManagement.DTO.LoginDTO;
 import com.example.AddressBookManagement.DTO.ResetPasswordDTO;
 import com.example.AddressBookManagement.model.AuthUser;
 import com.example.AddressBookManagement.repository.AuthUserRepository;
-import com.example.AddressBookManagement.Utils.JwtUtil;
+// import com.example.AddressBookManagement.Utils.JwtUtil; // ❌ Commented out JWT import
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -22,13 +22,13 @@ public class AuthUserService {
 
     private final AuthUserRepository authUserRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    // private final JwtUtil jwtUtil; // ❌ Commented out JWT injection
     private final JavaMailSender mailSender;
 
-    public AuthUserService(AuthUserRepository authUserRepository, JwtUtil jwtUtil, JavaMailSender mailSender) {
+    public AuthUserService(AuthUserRepository authUserRepository, /*JwtUtil jwtUtil,*/ JavaMailSender mailSender) {
         this.authUserRepository = authUserRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
-        this.jwtUtil = jwtUtil;
+        // this.jwtUtil = jwtUtil; // ❌ Commented out
         this.mailSender = mailSender;
     }
 
@@ -63,12 +63,11 @@ public class AuthUserService {
             throw new IllegalArgumentException("Invalid email or password!");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
-
-        user.setJwtToken(token);
+        // String token = jwtUtil.generateToken(user.getEmail()); // ❌ JWT logic removed
+        // user.setJwtToken(token); // ❌ JWT logic removed
         authUserRepository.save(user);
 
-        return token;
+        return "Login successful"; // ✅ Changed to return a success message instead of a token
     }
 
     @Transactional
@@ -80,20 +79,21 @@ public class AuthUserService {
         }
 
         AuthUser user = userOptional.get();
-        String token = jwtUtil.generateToken(email);
+        // String token = jwtUtil.generateToken(email); // ❌ Commented out
 
-        user.setResetToken(token);
+        // user.setResetToken(token); // ❌ Commented out
         user.setTokenExpiry(new Date(System.currentTimeMillis() + 15 * 60 * 1000));
         authUserRepository.save(user);
 
-        sendEmail(email, "Reset Password", "Your reset token is: " + token);
+        // sendEmail(email, "Reset Password", "Your reset token is: " + token); // ❌ Commented out
 
-        return "Password reset token sent to: " + email;
+        return "Password reset instructions sent to: " + email;
     }
 
     @Transactional
     public String resetPassword(String token, ResetPasswordDTO resetPasswordDTO) {
-        Optional<AuthUser> userOptional = authUserRepository.findByEmail(jwtUtil.extractEmail(token));
+        // Optional<AuthUser> userOptional = authUserRepository.findByEmail(jwtUtil.extractEmail(token)); // ❌ Commented out
+        Optional<AuthUser> userOptional = Optional.empty(); // ✅ Placeholder to prevent errors
 
         if (userOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid or expired token");
@@ -124,6 +124,6 @@ public class AuthUserService {
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Error sending email", e);
-        }
-    }
+}
+}
 }

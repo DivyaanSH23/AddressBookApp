@@ -13,23 +13,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // ✅ Disable CSRF for APIs
+                .csrf(csrf -> csrf.disable()) // ❌ Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/h2/**",          // ✅ Allow H2 Console
-                                "/swagger-ui/**",  // ✅ Allow Swagger UI
-                                "/v3/api-docs/**", // ✅ Allow API Docs
-                                "/auth/**"         // ✅ Allow Authentication APIs
+                                "/h2/",
+                                "/swagger-ui/",
+                                "/v3/api-docs/",
+                                "/auth/",
+                                "/addresses"
                         ).permitAll()
-                        .anyRequest().permitAll() // 🚨 Open everything for testing (change later)
+                        //.anyRequest().authenticated() // ❌ Commented out to allow all requests
+                        .anyRequest().permitAll()
                 )
-                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())); // ✅ Allow Frames for H2
+                /*
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt) // ❌ Commented out JWT security
+                */
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
 
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
+}
 }
